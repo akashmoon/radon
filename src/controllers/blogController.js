@@ -1,6 +1,7 @@
 const blogModel = require("../models/blogModel")
 const authorModel = require("../models/authorModel");
 const mongoose = require("mongoose")
+const jwt = require("jsonwebtoken")
 const middl=require("../middlewares/middleware")
 
 const { isValidEmail,
@@ -210,14 +211,30 @@ const deleteBlogByQuery = async function (req, res) {
             obj.isPublished = isPublished
         }
         let deletedTime = new Date().toISOString();
-        let blog = await blogModel.findOne(obj)
+        let blog = await blogModel.find(obj)
         if (!blog) return res.status(400).send({ status: false, msg: "Sorry No Blog Found either check the Upper and Lower case of Letters" })
-        console.log(blog.authorId)
+        console.log(blog)
         
-        if(blog.authorId!==middl.authentication.decodedtoken) return res.send({status:false,msg:"Sorry You Are not Authorise to do this...else check your header or pass only that query which belongs to your authorId"})
+        
+        let token= req.headers["X-Api-key"];
+        if(!token) token= req.headers["x-api-key"]
+        
+        //If no token is present in the request header return error
+        if (!token) return res.status(400).send({ status: false, msg: "token must be present" }); 
+        
+        let decodedtoken= jwt.verify(token,"functionup-radon")
+        console.log(decodedtoken.authorId)
+        
+        
+        const idOfBlogsTobedel= blog.map(blog=>{
+            if(blog.authorId.toString()=== decodedtoken.authorId){
+                return blog._id
+            }
+        })
+
         if (blog.isDeleted == true) return res.status(200).send({ staus: true, msg: "This is Already Deleted" })
-        if (Object.keys(blog).length > 0) {
-            let data = await blogModel.findOneAndUpdate(obj, { $set: { "isDeleted": true, "deletedAt": deletedTime } }, { new: true })
+        if ( idOfBlogsTobedel> 0) {
+            let data = await blogModel.updateMany ({_id:{$in:idOfBlogsTobedel}},{ $set: { "isDeleted": true, "deletedAt": deletedTime } }, { new: true })
             return res.status(200).send({ status: true, msg: "SuccesFully Deleted", blog: data })
         }
         else {
@@ -230,7 +247,6 @@ const deleteBlogByQuery = async function (req, res) {
         res.status(500).send({ status: false, msg: err.message })
     }
 }
-
 
 module.exports.deleteBlog = deleteBlog
 module.exports.updateBlogbyparams = updateBlogbyparams
