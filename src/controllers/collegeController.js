@@ -31,11 +31,11 @@ const createCollege = async function (req, res) {
 
         if (!isValid(logoLink) || !urlRegex.test(logoLink)) invalid = invalid + ", logoLink "
 
-        if ((!isValid(name) || !nameRegex.test(name)) || (!isValid(fullName) || !fullNameRegex.test(fullName)) || (!isValid(logoLink) || !urlRegex.test(logoLink))) { return res.status(400).send({ status: false, msg: `Enter valid details in following field:${invalid}` }) }
+        if ((!isValid(name) || !nameRegex.test(name)) || (!isValid(fullName) || !fullNameRegex.test(fullName)) || (!isValid(logoLink) || !urlRegex.test(logoLink))) { return res.status(400).send({ status: false, msg: `${invalid} is not provided in above req body:` }) }
 
       // -------- checking college----already in collection or not 
         const college = await collegeModel.findOne({ name })
-        if (college) return res.status(400).send({ status: false, message: `${name} is already registered.` })
+        if (college) return res.status(400).send({ status: false, message: `${name} is not unique its already registered.` })
       //--------creating college documents-------------
         const newCollege = await collegeModel.create(collegeData)
         res.status(201).send({ status: true, message: "College created succesfully.", data: newCollege })
