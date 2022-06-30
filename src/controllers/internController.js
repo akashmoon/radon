@@ -26,14 +26,14 @@ const createIntern = async function (req, res) {
         // validation for intern feilds ---------
          let invalid = "  "
         if (!isValidRequestBody(internData)) return res.status(400).send({ status: false, message: "No input by intern user." })
-        if (!isValid(name) || !nameRegex.test(name)) invalid = invalid + " name "
+        if (!isValid(name) || !nameRegex.test(name)) invalid = invalid + "name, "
 
-        if (!isValid(email) || !emailRegex.test(email)) invalid = invalid + ", email"
+        if (!isValid(email) || !emailRegex.test(email)) invalid = invalid + "email, "
 
-        if (!isValid(mobile) || !mobileRegex.test(mobile)) invalid = invalid + ",Mobile "
-        // if (!isValid(collegeName) || !fullNameRegex.test(collegeName)) invalid = invalid + ",collegeName "
+        if (!isValid(mobile) || !mobileRegex.test(mobile)) invalid = invalid + "Mobile"
+        if (!isValid(collegeName) || !nameRegex.test(collegeName)) invalid = invalid + "collegeName"
 
-        if ((!isValid(name) || !nameRegex.test(name)) || (!isValid(email) || !emailRegex.test(email)) || (!isValid(mobile) || !mobileRegex.test(mobile))) { return res.status(400).send({ status: false, msg: `Enter valid details in following field:${invalid}` }) }
+        if ((!isValid(name) || !nameRegex.test(name)) || (!isValid(email) || !emailRegex.test(email)) || (!isValid(mobile) || !mobileRegex.test(mobile))|| !isValid(collegeName) || !nameRegex.test(collegeName)) { return res.status(400).send({ status: false, msg: `${invalid} is not valid or provided in above req body` }) }
 
         //-----it is checking clg name is already present or not
         const getCollege = await collegeModel.findOne({ name: collegeName, isDeleted: false })
@@ -61,20 +61,3 @@ const createIntern = async function (req, res) {
 }
 
 module.exports.createIntern = createIntern
-
-
-
-
-
-// {jkhh:hadjklfh}
-// [{ksdh},]
-//OR
-        // internData["collegeId"]=collegeId
-    
-
-        // const Data = {
-        //     name: name,
-        //     email: email,
-        //     mobile: mobile,
-        //     collegeName: getCollege._id
-        // }
